@@ -10,7 +10,7 @@ model = genai.GenerativeModel("gemini-2.5-flash")
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
-
+# teste commit
 
 @app.route("/")
 def home():
