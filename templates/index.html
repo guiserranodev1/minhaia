@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Minha IA</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <div class="header">
+        🤖 Minha IA
+    </div>
+
+    <div id="chat-box" class="chat"></div>
+
+    <div class="input-area">
+        <input id="input" type="text" placeholder="Digite sua mensagem..." />
+        <button onclick="sendMessage()">➤</button>
+    </div>
+
+</div>
+
+<script>
+async function sendMessage() {
+    const input = document.getElementById("input");
+    const chat = document.getElementById("chat-box");
+
+    const message = input.value.trim();
+    if (!message) return;
+
+    chat.innerHTML += `
+        <div class="msg user">
+            <div class="bubble">${message}</div>
+        </div>
+    `;
+
+    input.value = "";
+
+    chat.innerHTML += `
+        <div class="msg bot">
+            <div class="bubble">...</div>
+        </div>
+    `;
+
+    chat.scrollTop = chat.scrollHeight;
+
+    const response = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ message })
+    });
+
+    const data = await response.json();
+
+    document.querySelector(".msg.bot:last-child .bubble").innerText = data.reply;
+
+    chat.scrollTop = chat.scrollHeight;
+}
+</script>
+
+</body>
+</html>
