@@ -15,7 +15,7 @@ Você digita uma mensagem no chat e a IA responde em tempo real no navegador.
 - Python 🐍  
 - Flask (backend)  
 - Google Generative AI (Gemini) 🤖  
-- HTML + CSS + JavaScript (frontend)
+- HTML + CSS (frontend)
 
 ---
 
