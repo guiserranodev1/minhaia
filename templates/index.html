@@ -1,64 +1,79 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Minha IA</title>
-<link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <title>Professor Virtual - Ambiente de Estudo</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
-
 <body>
 
 <div class="app">
-
     <div class="header">
-        🤖 Minha IA
+        PROFESSOR VIRTUAL | MODO ESTUDO
     </div>
 
     <div id="chat-box" class="chat"></div>
 
     <div class="input-area">
-        <input id="input" type="text" placeholder="Digite sua mensagem..." />
-        <button onclick="sendMessage()">➤</button>
+        <input id="input" type="text" placeholder="Coloque sua dúvida aqui..." autocomplete="off" />
+        <button id="send-btn" onclick="sendMessage()">Enviar</button>
     </div>
-
 </div>
 
 <script>
-async function sendMessage() {
-    const input = document.getElementById("input");
-    const chat = document.getElementById("chat-box");
-
-    const message = input.value.trim();
-    if (!message) return;
-
-    chat.innerHTML += `
-        <div class="msg user">
-            <div class="bubble">${message}</div>
-        </div>
-    `;
-
-    input.value = "";
-
-    chat.innerHTML += `
-        <div class="msg bot">
-            <div class="bubble">...</div>
-        </div>
-    `;
-
-    chat.scrollTop = chat.scrollHeight;
-
-    const response = await fetch("/chat", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ message })
+    // Atalho do Enter
+    document.getElementById("input").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            sendMessage();
+        }
     });
 
-    const data = await response.json();
+    async function sendMessage() {
+        const input = document.getElementById("input");
+        const chat = document.getElementById("chat-box");
 
-    document.querySelector(".msg.bot:last-child .bubble").innerText = data.reply;
+        const message = input.value.trim();
+        if (!message) return;
 
-    chat.scrollTop = chat.scrollHeight;
-}
+        // Mensagem do Usuário
+        chat.innerHTML += `
+            <div class="msg user">
+                <div class="bubble">${message}</div>
+            </div>
+        `;
+
+        input.value = "";
+
+        // Placeholder da IA
+        const botMsgId = "bot-" + Date.now();
+        chat.innerHTML += `
+            <div class="msg bot">
+                <div class="bubble" id="${botMsgId}">...</div>
+            </div>
+        `;
+
+        chat.scrollTop = chat.scrollHeight;
+
+        try {
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ message })
+            });
+
+            const data = await response.json();
+            
+            // Renderiza a resposta usando Marked para suportar Markdown e Código
+            document.getElementById(botMsgId).innerHTML = marked.parse(data.reply);
+
+        } catch (error) {
+            document.getElementById(botMsgId).innerText = "Erro ao conectar com o tutor.";
+        }
+
+        chat.scrollTop = chat.scrollHeight;
+    }
 </script>
 
 </body>
